@@ -2,24 +2,52 @@ import { useState } from 'react';
 
 function Square({ value, onSquareClick }) {
   return (
-    <button onClick={onSquareClick} className='square'>
+    <button className='square' onClick={onSquareClick}>
       {value}
     </button>
   );
 }
 
 export default function Board() {
+  //What are the variables as arrays called and what are they doing?   How can I visualize what they are doing with more clarity? I somewhat figured this one out in line 35, 36
+  //Is this an exxample of destructuring? as in this article https://www.freecodecamp.org/news/destructuring-patterns-javascript-arrays-and-objects/
+
+  // https://www.w3schools.com/react/react_es6_destructuring.asp
+  // Destructuring comes in handy when a function returns an array:
+  //What is the setName structure all about?
+  //I learned the first index is a value, and the second is function that you call against the value.
+  const [xIsNext, setXIsNext] = useState(true);
   const [squares, setSquares] = useState(Array(9).fill(null));
 
   function handleClick(i) {
+    // is the uncommented code below shorthand for:
+    //if (calcuateWinner(sqaures) === true || squares[i] ===true)
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
     const nextSquares = squares.slice();
-    nextSquares[i] = 'X';
+    if (xIsNext) {
+      nextSquares[i] = 'X';
+    } else {
+      nextSquares[i] = 'O';
+    }
     setSquares(nextSquares);
-    console.log(squares);
-    console.log(nextSquares);
+    setXIsNext(!xIsNext);
+    console.log(squares, 'squares');
+    console.log(nextSquares, 'next-squares');
   }
+
+  const winner = calculateWinner(squares);
+  let status;
+  if (winner) {
+    status = 'Winner: ' + winner;
+  } else {
+    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+  }
+
   return (
     <>
+      <div className='status'>{status}</div>
       <div className='board-row'>
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -37,4 +65,25 @@ export default function Board() {
       </div>
     </>
   );
+}
+
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    // debugger
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
 }
